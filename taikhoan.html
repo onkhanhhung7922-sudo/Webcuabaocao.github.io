@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trang tài khoản</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f0f0f0; padding:30px; }
+h1 { color:#2980b9; }
+button { padding:10px 20px; background:#2980b9; color:white; border:none; border-radius:8px; cursor:pointer; margin-top:10px; }
+button:hover { background:#1f6693; }
+</style>
+</head>
+<body>
+
+<h1 id="greeting">Chào!</h1>
+<div id="action"></div>
+
+<script>
+const greeting = document.getElementById('greeting');
+const actionDiv = document.getElementById('action');
+
+let currentUser = null;
+try {
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+} catch(e) {
+    currentUser = null;
+}
+
+if(currentUser && currentUser.username){
+    greeting.innerText = `Chào, ${currentUser.username}!`;
+
+    const btnLogout = document.createElement('button');
+    btnLogout.innerText = 'Đăng xuất';
+    btnLogout.onclick = () => {
+        localStorage.removeItem('currentUser');
+        location.href = "dangnhapdangky.html"; // quay lại trang đăng nhập
+    };
+    actionDiv.appendChild(btnLogout);
+} else {
+    greeting.innerText = 'Chào, Khách!';
+
+    const btnLogin = document.createElement('button');
+    btnLogin.innerText = 'Đăng nhập / Đăng ký';
+    btnLogin.onclick = () => {
+        location.href = "dangnhapdangky.html";
+    };
+    actionDiv.appendChild(btnLogin);
+}
+</script>
+
+</body>
+</html>

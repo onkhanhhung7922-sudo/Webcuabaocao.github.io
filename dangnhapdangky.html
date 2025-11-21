@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập / Đăng ký</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #ecf0f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 350px;
+}
+input { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+button { padding: 10px; width: 100%; background:#2980b9; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; }
+button:hover { background:#1f6693; }
+.message { font-size: 14px; margin-top:5px; }
+.switch { margin-top: 15px; text-align:center; font-size:14px; }
+.switch a { color:#2980b9; text-decoration:none; }
+.switch a:hover { text-decoration:underline; }
+
+</style>
+</head>
+<body>
+
+<div class="container" id="loginForm">
+<h2>Đăng nhập</h2>
+<input type="text" id="loginUser" placeholder="Tài khoản"><br>
+<input type="password" id="loginPass" placeholder="Mật khẩu"><br>
+<button onclick="dangNhap()">Đăng nhập</button>
+<p id="loginMessage" class="message"></p>
+<div class="switch">
+Chưa có tài khoản? <a href="#" onclick="showRegister()">Đăng ký ngay</a>
+</div>
+</div>
+
+<div class="container" id="registerForm" style="display:none;">
+<h2>Đăng ký</h2>
+<input type="text" id="regUser" placeholder="Tên đăng nhập"><br>
+<input type="email" id="regEmail" placeholder="Email"><br>
+<input type="password" id="regPass" placeholder="Mật khẩu"><br>
+<button onclick="dangKy()">Đăng ký</button>
+<p id="registerMessage" class="message"></p>
+<div class="switch">
+Đã có tài khoản? <a href="#" onclick="showLogin()">Đăng nhập</a>
+</div>
+</div>
+
+<script>
+// Hiển thị / ẩn form
+function showRegister() { 
+    document.getElementById('loginForm').style.display='none'; 
+    document.getElementById('registerForm').style.display='block'; 
+}
+function showLogin() { 
+    document.getElementById('registerForm').style.display='none'; 
+    document.getElementById('loginForm').style.display='block'; 
+}
+
+// Đăng ký
+function dangKy(){
+    let username = document.getElementById('regUser').value.trim();
+    let email = document.getElementById('regEmail').value.trim();
+    let password = document.getElementById('regPass').value.trim();
+    let msg = document.getElementById('registerMessage');
+
+    if(!username || !email || !password){
+        msg.textContent = "Vui lòng điền đầy đủ thông tin!";
+        return;
+    }
+
+    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+    if(accounts.find(acc => acc.username===username)){
+        msg.textContent = "Tên đăng nhập đã tồn tại!";
+        return;
+    }
+
+    accounts.push({username,email,password});
+    localStorage.setItem('accounts', JSON.stringify(accounts));
+    msg.style.color = "green";
+    msg.textContent = "Đăng ký thành công!";
+    document.getElementById('regUser').value='';
+    document.getElementById('regEmail').value='';
+    document.getElementById('regPass').value='';
+}
+
+// Đăng nhập
+function dangNhap(){
+    let username = document.getElementById('loginUser').value.trim();
+    let password = document.getElementById('loginPass').value.trim();
+    let msg = document.getElementById('loginMessage');
+
+    if(!username || !password){
+        msg.textContent = "Vui lòng nhập đầy đủ!";
+        return;
+    }
+
+    let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+    let account = accounts.find(acc => acc.username===username && acc.password===password);
+
+    if(account){
+        // Lưu thông tin người dùng hiện tại
+        localStorage.setItem('currentUser', JSON.stringify(account));
+        // Chuyển sang trang tài khoản
+        window.location.href="taikhoan.html";
+    } else {
+        msg.style.color = "red";
+        msg.textContent = "Sai tên tài khoản hoặc mật khẩu!";
+    }
+}
+</script>
+</body>
+</html>

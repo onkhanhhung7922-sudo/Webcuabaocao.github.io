@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Giỏ hàng</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+    margin: 0;
+}
+h2 { text-align: center; margin-bottom: 20px; }
+#cart, #checkoutBox {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 900px;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px; border-bottom: 1px solid #ccc; text-align: left; }
+button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.removeBtn { background: red; color: white; }
+.payBtn { background: green; color: white; width: 100%; font-size: 18px; padding: 12px; margin-top: 10px; }
+.money-box { text-align: right; font-size: 18px; margin-top: 5px; }
+#checkoutBox input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div id="cart">
+    <h2>Giỏ hàng</h2>
+    <table id="cartTable">
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Tổng</th>
+            <th>Xóa</th>
+        </tr>
+    </table>
+
+    <div class="money-box" id="subtotal">Tạm tính: 0đ</div>
+    <div class="money-box" id="vat">Thuế (VAT 10%): 0đ</div>
+    <div class="money-box" id="ship">Phí vận chuyển: 30.000đ</div>
+    <hr>
+    <div class="money-box" id="grandTotal"><b>Tổng thanh toán: 0đ</b></div>
+</div>
+
+<div id="checkoutBox">
+    <h2>Thông tin thanh toán</h2>
+    <input type="text" id="fullname" placeholder="Họ và tên">
+    <input type="text" id="phone" placeholder="Số điện thoại">
+    <input type="text" id="address" placeholder="Địa chỉ nhận hàng">
+    <button class="payBtn" onclick="checkout()">Thanh toán</button>
+</div>
+
+<script>
+let grandTotal = 0;
+
+function renderCart() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let table = document.getElementById("cartTable");
+    table.innerHTML = `
+        <tr>
+            <th>Sản phẩm</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th>Tổng</th>
+            <th>Xóa</th>
+        </tr>
+    `;
+
+    let subtotal = 0;
+
+    cart.forEach((item, index) => {
+        let row = `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.price.toLocaleString()}đ</td>
+                <td>${item.qty}</td>
+                <td>${(item.price*item.qty).toLocaleString()}đ</td>
+                <td><button class="removeBtn" onclick="removeItem(${index})">X</button></td>
+            </tr>
+        `;
+        table.innerHTML += row;
+        subtotal += item.price * item.qty;
+    });
+
+    let vat = subtotal * 0.10;
+    let ship = subtotal > 0 ? 30000 : 0;
+    grandTotal = subtotal + vat + ship;
+
+    document.getElementById("subtotal").innerText = "Tạm tính: " + subtotal.toLocaleString() + "đ";
+    document.getElementById("vat").innerText = "Thuế (VAT 10%): " + vat.toLocaleString() + "đ";
+    document.getElementById("ship").innerText = "Phí vận chuyển: " + ship.toLocaleString() + "đ";
+    document.getElementById("grandTotal").innerHTML = "<b>Tổng thanh toán: " + grandTotal.toLocaleString() + "đ</b>";
+}
+
+function removeItem(index) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+}
+
+function checkout() {
+    let name = document.getElementById("fullname").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+    let addr = document.getElementById("address").value.trim();
+
+    if (!name || !phone || !addr) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+    }
+
+    if (grandTotal <= 0) {
+        alert("Giỏ hàng của bạn đang trống!");
+        return;
+    }
+
+    alert(
+        `Đặt hàng thành công!\n\nTên: ${name}\nSĐT: ${phone}\nĐịa chỉ: ${addr}\nTổng thanh toán: ${grandTotal.toLocaleString()}đ`
+    );
+
+    localStorage.removeItem("cart");
+    renderCart();
+
+    document.getElementById("fullname").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("address").value = "";
+}
+
+renderCart();
+</script>
+
+</body>
+</html>
